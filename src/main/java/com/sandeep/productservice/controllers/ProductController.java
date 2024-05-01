@@ -1,5 +1,8 @@
 package com.sandeep.productservice.controllers;
 
+import com.sandeep.productservice.commons.AuthenticationCommons;
+import com.sandeep.productservice.dtos.Role;
+import com.sandeep.productservice.dtos.UserDto;
 import com.sandeep.productservice.exceptions.InvalidProductIdException;
 import com.sandeep.productservice.exceptions.ProductControllerSpecificException;
 import com.sandeep.productservice.models.Product;
@@ -9,18 +12,23 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @RestController
 @RequestMapping("/products")
 public class ProductController {
 
     private IProductService productService;
+    private AuthenticationCommons authenticationCommons;
 
-    ProductController(@Qualifier("selfProductServiceImpl") IProductService productService)
+    ProductController(@Qualifier("selfProductServiceImpl") IProductService productService, AuthenticationCommons authenticationCommons)
     {
-
         this.productService = productService;
+        this.authenticationCommons = authenticationCommons;
     }
 
     //localhost:8080/products/10
@@ -39,9 +47,31 @@ public class ProductController {
     }
 
     //localhost:8080/products
-    @GetMapping
-    public List<Product> getAllProducts() {
-        return productService.getAllProducts();
+    @GetMapping("/all/{token}")
+    public ResponseEntity<List<Product>> getAllProducts(@PathVariable String token) {
+
+        UserDto userDto = authenticationCommons.validateToken(token);
+        if(userDto == null)
+        {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+        List<Role> roles = userDto.getRoles();
+        //Stream<Role> admin = roles.stream().filter(role -> roles.equals("ADMIN"));
+        boolean isAdmin = false;
+        for(Role role : roles)
+        {
+            if(role.getName().equals("ADMIN"))
+            {
+                isAdmin = true;
+                break;
+            }
+        }
+        if(!isAdmin)
+        {
+            return null;
+        }
+        List<Product> products = productService.getAllProducts();
+        return new ResponseEntity<>(products, HttpStatus.OK);
     }
 
     //Create a product

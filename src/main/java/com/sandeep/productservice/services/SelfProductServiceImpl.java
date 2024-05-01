@@ -1,12 +1,9 @@
 package com.sandeep.productservice.services;
 
-import com.sandeep.productservice.dtos.ProductDto;
 import com.sandeep.productservice.exceptions.InvalidProductIdException;
-import com.sandeep.productservice.models.Category;
 import com.sandeep.productservice.models.Product;
 import com.sandeep.productservice.repositories.CategoryRepository;
 import com.sandeep.productservice.repositories.ProductRepository;
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -41,15 +38,15 @@ public class SelfProductServiceImpl implements IProductService{
     @Override
     public Product createProduct(Product product) {
 
-//        Category category = product.getCategory();
-//        if (category.getId()==null)
-//        {
-//            Category savedCategory = categoryRepository.save(category);
-//            product.setCategory(savedCategory);
-//        }
-//       Category savedCategory = categoryRepository.save(category);
-//        product.setCategory(savedCategory);
-        return productRepository.save(product);
+       /* Category category = product.getCategory();
+        if (category.getId()==null)
+        {
+            Category savedCategory = categoryRepository.save(category);
+            product.setCategory(savedCategory);
+        }
+       Category savedCategory = categoryRepository.save(category);
+        product.setCategory(savedCategory);*/
+       return productRepository.save(product);
     }
 
     //TODO

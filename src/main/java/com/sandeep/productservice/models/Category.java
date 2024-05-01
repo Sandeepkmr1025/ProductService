@@ -1,5 +1,6 @@
 package com.sandeep.productservice.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -14,6 +15,7 @@ import java.util.List;
 @Entity
 public class Category extends BaseModel{
 
+    @JsonBackReference
     @OneToMany(fetch = FetchType.EAGER,mappedBy = "category",cascade = CascadeType.REMOVE)
     private List<Product> products;
     private String title;
