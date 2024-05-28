@@ -1,17 +1,14 @@
 package com.sandeep.productservice.services;
 
-import com.sandeep.productservice.dtos.ProductDto;
 import com.sandeep.productservice.exceptions.InvalidProductIdException;
 import com.sandeep.productservice.models.Product;
-import org.springframework.data.jpa.repository.Query;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
 
 public interface IProductService {
 
     Product getProductById(Long id) throws InvalidProductIdException;
 
-    List<Product> getAllProducts();
+    Page<Product> getAllProducts(int pageNumber, int pageSize, String sortDir);
 
     Product createProduct(Product product);
 

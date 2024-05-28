@@ -8,9 +8,11 @@ import com.sandeep.productservice.exceptions.ProductControllerSpecificException;
 import com.sandeep.productservice.models.Product;
 import com.sandeep.productservice.services.IProductService;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,11 +26,13 @@ public class ProductController {
 
     private IProductService productService;
     private AuthenticationCommons authenticationCommons;
+    private RestTemplate restTemplate;
 
-    ProductController(@Qualifier("selfProductServiceImpl") IProductService productService, AuthenticationCommons authenticationCommons)
+    ProductController(@Qualifier("selfProductServiceImpl") IProductService productService, AuthenticationCommons authenticationCommons, RestTemplate restTemplate)
     {
         this.productService = productService;
         this.authenticationCommons = authenticationCommons;
+        this.restTemplate = restTemplate;
     }
 
     //localhost:8080/products/10
@@ -41,36 +45,45 @@ public class ProductController {
 //            System.out.println("Something went wrong");
 //            return new ResponseEntity<>(product, HttpStatus.NOT_FOUND);
 //        }
+
+        ResponseEntity<String> responseEntity = restTemplate.getForEntity("http://UserService/users/" + id, String.class);
+
           Product product = productService.getProductById(id);
           return new ResponseEntity<Product>(product, HttpStatus.OK);
 
     }
 
     //localhost:8080/products
-    @GetMapping("/all/{token}")
-    public ResponseEntity<List<Product>> getAllProducts(@PathVariable String token) {
+//    @GetMapping("/all/{token}")
+//    public ResponseEntity<List<Product>> getAllProducts(@PathVariable String token) {
+//
+//        UserDto userDto = authenticationCommons.validateToken(token);
+//        if(userDto == null)
+//        {
+//            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+//        }
+//        List<Role> roles = userDto.getRoles();
+//        //Stream<Role> admin = roles.stream().filter(role -> roles.equals("ADMIN"));
+//        boolean isAdmin = false;
+//        for(Role role : roles)
+//        {
+//            if(role.getName().equals("ADMIN"))
+//            {
+//                isAdmin = true;
+//                break;
+//            }
+//        }
+//        if(!isAdmin)
+//        {
+//            return null;
+//        }
+//        List<Product> products = productService.getAllProducts();
+//        return new ResponseEntity<>(products, HttpStatus.OK);
+//    }
 
-        UserDto userDto = authenticationCommons.validateToken(token);
-        if(userDto == null)
-        {
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        }
-        List<Role> roles = userDto.getRoles();
-        //Stream<Role> admin = roles.stream().filter(role -> roles.equals("ADMIN"));
-        boolean isAdmin = false;
-        for(Role role : roles)
-        {
-            if(role.getName().equals("ADMIN"))
-            {
-                isAdmin = true;
-                break;
-            }
-        }
-        if(!isAdmin)
-        {
-            return null;
-        }
-        List<Product> products = productService.getAllProducts();
+    @GetMapping("/")
+    public ResponseEntity<Page<Product>> getAllProducts(@RequestParam("pageNumber") int pageNumber, @RequestParam("pageSize")int pageSize, @RequestParam("sortDir") String sortDir ) {
+        Page<Product> products = productService.getAllProducts(pageNumber, pageSize, sortDir);
         return new ResponseEntity<>(products, HttpStatus.OK);
     }
 

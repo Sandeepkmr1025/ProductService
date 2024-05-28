@@ -4,6 +4,9 @@ import com.sandeep.productservice.exceptions.InvalidProductIdException;
 import com.sandeep.productservice.models.Product;
 import com.sandeep.productservice.repositories.CategoryRepository;
 import com.sandeep.productservice.repositories.ProductRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -31,8 +34,11 @@ public class SelfProductServiceImpl implements IProductService{
     }
 
     @Override
-    public List<Product> getAllProducts() {
-        return productRepository.findAll();
+    public Page<Product> getAllProducts(int pageNumber, int pageSize, String sortDir) {
+        return productRepository.findAll(PageRequest.of(pageNumber,
+                pageSize,
+                sortDir.equals("asc") ? Sort.by("price").ascending() :
+                        Sort.by("price").descending()));
     }
 
     @Override
